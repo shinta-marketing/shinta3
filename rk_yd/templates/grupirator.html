@@ -1,0 +1,398 @@
+{% extends 'base_grupirator.html' %}
+
+{%  block title %}
+Группировка и минусация
+{%  endblock %}
+
+{%  block link %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/rk_grupirator.css')}}" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
+{%  endblock %}
+
+{%  block menu_left %}
+<div class="row">
+  {% if rk_type == 'direct_rsy' %}
+  <h5 class="text-heder" style="color: #383d41;">YD - РСЯ</h5>
+  {% else %}
+  <h5 class="text-heder" style="color: #383d41;">YD - ПОИСК</h5>
+  {% endif %}
+  <h6 id="data" data-type="{{rk_type}}" data-name="{{name_rk}}" data-id="{{rk_id}}" data-fid="{{folder_id}}" data-nch="{{nch}}" class="text-heder" style="margin-top: 0px;">{{name_rk}}</h6>
+  <a href="/?id={{folder_id}}" class="moi_rk"> <img class="text-item" src="/static/img/back.svg">Мок РК</a>
+  <span class="text-heder">ИНСТРУМЕНТЫ</span>
+  <a href="/rk_yd/{{folder_id}}_{{ rk_id }}" class="instrument unactiv-menu"><img class="text-item" src="/static/img/strukture.svg">Структура РК</a>
+  <span class="instrument activ-menu"><img class="text-item" src="/static/img/grupirator2.svg">Группиратор</span>
+  <a href="/red_yd/{{folder_id}}_{{ rk_id }}" class="instrument unactiv-menu"><img class="text-item" src="/static/img/redob.svg">Редактор обявлений</a>
+  <a href="/set_yd/{{folder_id}}_{{ rk_id }}" class="instrument unactiv-menu"><img class="text-item" src="/static/img/plan.svg">Настройки</a>
+  <a href="https://www.youtube.com/watch?v=SkGJ3ZMMhaY" class="instrument unactiv-menu" style="margin-top: 40px;" target="_blank"><img class="text-item" src="/static/img/youtube.svg">Обучающее видео</a>
+</div>
+{%  endblock %}
+
+{%  block main %}
+<div id="preloader" class="hidden"></div>
+<div class="w-100"></div>
+
+<div class="row" style="padding: 0 10px;">
+  <div class="col-3 dannie">
+<!-- Панель управления -->
+    <div class="row justify-content-center">
+      <div class="panel-uprav" data-toggle="modal" data-target="#perenosModal">
+          <span><img class="panel-svg" src="/static/img/per.svg">Перенести</span>
+        </div>
+
+        <div class="panel-uprav delete" id="delete" data-toggle="modal" data-target="#delet_app">
+          <span><img class="panel-svg" src="/static/img/delete2.svg">Удалить</span>
+        </div>
+    </div>
+
+    <table name="segment" class="table table-bordered table-sm" style="font-size: 14px;">
+      <thead class="thead-light" style="text-align: center;" >
+        <tr>
+          <th>
+              <div class="col"><input type="checkbox" id="all_seg" style="margin-right: 10px;" checked>Сегмент <button type="button" class="btn btn-info btn-sm" id="veiw_words" style="font-size: 12px;padding: .1rem .5rem;margin-left: 30px;">Отобразить</button></div>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for segment in s  %}
+          <tr name="segment" data="{{ segment['id'] }}" class="segment_veiw segment_active">
+            <th class="segment_name">{{ segment['name'] }}</th>
+          </tr>
+        {% endfor%}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col-6 dannie2">
+    <table class="table table-bordered table-sm" style="font-size: 14px;">
+      <thead class="thead-light" style="text-align: center;" >
+        <tr>
+          <th >
+            <div class="row">
+
+              <div class="col-10">
+                <div class="input-group input-group-sm">
+                  <div class="input-group-prepend del_poisk" style="display: none;">
+                    <span class="input-group-text del_poisk">X</span>
+                  </div>
+                  <input name="poisk" type="text" class="form-control">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" id="button-poisk" style="font-size:12px;">Поиск</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-2">
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-secondary dropdown-toggle sort" type="button" id="dropdownMenu2" data-toggle="dropdown">
+                    <img class="text-item3" id="sort" src="/static/img/sort-9-1.svg">
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenu2" style="font-size:12px;">
+                    <button name="10"class="dropdown-item active" type="button">От 1000... до 0</button>
+                    <button name="01" class="dropdown-item" type="button">От 0 до 1000...</button>
+                    <button name="az" class="dropdown-item" type="button">От А до Я</button>
+                    <button name="za" class="dropdown-item" type="button">От Я до А</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </th>
+        </tr>
+      </thead>
+    </table>
+
+    <div class="dannie" id="base_words">
+      <table name="fraze" class="table table-bordered table-sm" style="font-size: 14px;">
+        <tbody style="background-color: #ffff;" name="fraze"></tbody>
+      </table>
+    </div>
+
+</div>
+
+<!-- ГЛАЗ Modal -->
+  <div class="modal fade" id="glaz_app" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+
+      <div class="modal-content">
+        <div class="modal-header" style="display: block;background-color: #fdfdfd;">
+          <div class="row">
+            <div class="col-auto">
+              <h5 class="modal-title" id="exampleModalLabel">Фразы сожержащие эти слова</h5>
+            </div>
+            <div class="col">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <table name="glaz_fraze" class="table table-bordered table-sm" style="font-size: 14px;">
+          <thead class="thead-light" style="text-align: center;" >
+            <tr>
+              <th>Фразы по словам</th>
+            </tr>
+          </thead>
+
+          <tbody style="background-color: #ffff;" name="fraze_glaz">
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END ГЛАЗ Modal -->
+
+  <div class="col-3 dannie2">
+    <table class="table table-bordered table-sm" style="font-size: 14px;">
+      <thead class="thead-light" style="text-align: center;" >
+        <tr>
+          <th>
+
+            <div class="input-group input-group-sm">
+              <div style="padding: 0px;"><img data-toggle="modal" data-target="#minus_fraze_popup" class="text-item2" src="/static/img/plus_mf.svg" style="margin-top: 5px;"></div>
+              <select name="list_mf" class="custom-select {% if mf_id_rk != ''%}{%else%}control_modal_mf{%endif%}" style="font-size: 12px;">
+                <option id='nach_mf'>Список минус фраз</option>
+                {% for list in mf %}
+                {% if list['id'] == mf_id_rk%}
+                <option name="name_mf" data-id="{{list['id']}}" selected>{{list['name']}}</option>
+                {%else%}
+                <option name="name_mf" data-id="{{list['id']}}">{{list['name']}}</option>
+                {%endif%}
+                {% endfor%}
+              </select>
+              <div style="padding: 0px;"><img name="del_mf" class="text-item2" src="/static/img/delete2.svg" style="margin-top: 5px;margin-left: 5px;{% if mf_id_rk != ''%}{%else%}display:none;{%endif%}"></div>
+              <div style="padding: 0px;"><div class="save2">Сохранили &#128077;</div> <img name="save_mf" class="text-item2" src="/static/img/save_real.svg" style="margin-top: 5px;margin-left: 5px;{% if mf_id_rk != ''%}{%else%}display:none;{%endif%}"></div>
+            </div>
+
+<!-- ADD Minus Fraze -->
+            <div class="modal fade" id="minus_fraze_popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header" style="display: block;background-color: #fdfdfd;">
+                    <div class="row">
+                      <div class="col-auto">
+                        <h5 class="modal-title" id="exampleModalLabel">Работа с минус фразами</h5>
+                      </div>
+                      <div class="col">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                  </div>
+                  <div class="w-100"></div>
+                  <div class="row container navigator">
+                    <div name="panel_mf" data-name="add_mf" class="col nav-activ">Создать</div>
+                    <div name="panel_mf" data-name="add_mf_words" class="col nav-unactiv">Добавить фразы</div>
+                  </div>
+                </div>
+
+                <div name="modal_mf" class="modal-body" data-name="add_mf" data-type="{{rk_type}}">
+
+                  <label>Создать новый список минус фраз</label>
+                  <div class="input-group input-group-sm" style="padding: 20px;">
+                  <input name="name_minus" type="text" class="form-control" placeholder="имя списка" size="40">
+                  </div>
+
+                  <div class="form-group form-group-sm container" style="text-align: left;">
+                    <div class="row justify-content-between">
+                      <div class="col"><label style="font-size: 12px;">Сразу внести минус-слова</label></div>
+                      <div class="col" style="text-align: end;"><button type="button" class="btn btn-secondary btn-sm" style="font-size: 12px;padding: .1rem .5rem;">Загрузить из файла(txt)</button></div>
+                    </div>
+                    <textarea name="minus_words" class="form-control" style="font-size: 12px;" rows="5"></textarea>
+                    <small class="form-text text-muted">Каждое слово с новой строки</small>
+                  </div>
+                </div>
+
+                <div name="modal_mf" class="modal-body" data-name="add_mf_words" data-type="{{rk_type}}" style="display:none">
+
+                  <label>Добавить запросы в текущий список минус фраз</label>
+                  <div class="form-group form-group-sm container" style="text-align: left;">
+                    <div class="row justify-content-between">
+                      <div class="col" style="text-align: end;"><button type="button" class="btn btn-secondary btn-sm" style="font-size: 12px;padding: .1rem .5rem;margin-bottom: 5px;">Загрузить из файла(txt)</button></div>
+                    </div>
+                    <textarea name="add_words_mf" class="form-control" style="font-size: 12px;" rows="5"></textarea>
+                    <small class="form-text text-muted">Каждое слово с новой строки</small>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button name="button_mf" type="button" class="btn btn-primary" id="add_mf">Создать список</button>
+                </div>
+              </div>
+            </div>
+          </div>
+<!-- END add Minus Fraze -->
+          </th>
+        </tr>
+      </thead>
+    </table>
+
+    <div class="dannie" id="minus_frase" data-id='{{mf_id_rk}}'>
+      <table name="groupe" class="table table-bordered table-sm" style="font-size: 14px;">
+        <tbody name="active_words" data-id='{{mf_id_rk}}'></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ПРЕДУПРЕЖДЕНИЕ -->
+            <div class="modal fade" id="modal_varning" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color: #0000;border: 0px;">
+
+                <div class="modal-body" style="background-color:#fdc224;border-radius: 5px;">
+                  <h6>Уверены?</h6>
+                  <p style="font-size:12px">Точно удалить данный список минус фраз?</p>
+                </div>
+
+                <div class="modal-footer" style="border: 0px;">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет, случайно нажал(а)</button>
+                  <button type="button" class="btn btn-primary" id="yes_del_mf">Да, точно</button>
+                </div>
+              </div>
+            </div>
+          </div>
+<!-- END ПРЕДУПРЕЖДЕНИЕ -->
+
+<!-- ПРЕДУПРЕЖДЕНИЕ Переключение между минус-фразами -->
+            <div class="modal fade" id="modal_varning_mf" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color: #0000;border: 0px;">
+
+                <div class="modal-body" style="background-color:#fdc224;border-radius: 5px;">
+                  <h6>Уверены?</h6>
+                  <p style="font-size:12px">Все выбранные слова будут сняты и не сохранятся никуда. Если хотите их сохранить нажмите на синий "+" и создайте новый список минус-фраз</p>
+                </div>
+
+                <div class="modal-footer" style="border: 0px;">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет, случайно нажал(а)</button>
+                  <button type="button" class="btn btn-primary" id="yes_varning_mf">Да, точно</button>
+                </div>
+              </div>
+            </div>
+          </div>
+<!-- END ПРЕДУПРЕЖДЕНИЕ -->
+
+<!-- ПРЕДУПРЕЖДЕНИЕ Не сохранены минус-фразами -->
+            <div class="modal fade" id="mf_need_save" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color: #0000;border: 0px;">
+
+                <div class="modal-body" style="background-color:#fdc224;border-radius: 5px;">
+                  <h6>Вы не сохранили изменения в списке минус фраз!!</h6>
+                  <p style="font-size:12px">Сохранить?</p>
+                </div>
+
+                <div class="modal-footer" style="border: 0px;">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет, продолжить работу</button>
+                  <button type="button" class="btn btn-danger" id="no_save_mf">Нет, не сохранять</button>
+                  <button type="button" class="btn btn-primary" id="yes_seve_mf">Да, сохранить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+<!-- END ПРЕДУПРЕЖДЕНИЕ -->
+
+<!-- ПРЕДУПРЕЖДЕНИЕ Удаление выбранных фраз -->
+            <div class="modal fade" id="delet_app" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" id="modal_del" style="background-color: #0000;border: 0px;">
+
+                <div class="modal-body" style="background-color:#fdc224;border-radius: 5px;">
+                  <h6>Уверены?</h6>
+                  <p style="font-size:12px">В выбранных сегментах будут удалены все фразы содержащие отмеченные слова и словосочетания.</p>
+                </div>
+
+                <div class="modal-footer" style="border: 0px;">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет, случайно нажал(а)</button>
+                  <button type="button" class="btn btn-primary" id="but-delete">Да, точно</button>
+                </div>
+              </div>
+            </div>
+          </div>
+<!-- END ПРЕДУПРЕЖДЕНИЕ -->
+
+<!-- Modal perenos -->
+        <div class="modal fade" id="perenosModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header" style="display: block;background-color: #fdfdfd;">
+                <div class="row">
+                  <div class="col-auto">
+                    <h5 class="modal-title">Куда переносим фразы?</h5>
+                  </div>
+                  <div class="col">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+              </div>
+            </div>
+
+            <div name="perenos_table" class="modal-body" data-type="{{rk_type}}" style="font-size: 12px;">
+                <label for="exampleFormControlSelect2">Нажмите на имя папки(появятся вложенные)</label>
+                  <div class="col-auto" style="margin-bottom: 10px;">
+                    {% for i in data.bread %}
+                    {% if i[1] == data.id%}
+                    <a class="folder xleb_activ_cp" data-id="{{ i[1] }}">{{ i[0] }}</a>
+                    {%else%}
+                    <a class="folder xleb" data-id="{{ i[1] }}">> {{ i[0] }}</a>
+                    {%endif%}
+                    {% endfor%}
+                  </div>
+              <table class="table table-bordered table-sm" style="font-size: 14px;">
+                <tbody name="folder" style="background-color: #ffff;">
+                  {% for file in data.file  %}
+                  {% if file['type']=='folder'%}
+                  <tr class="folder" data-id="{{ file['id'] }}">
+                    <td style="width: 5%"><img class="info-item" src="/static/img/folder.svg" style="display: flex;margin: 0 auto;"></td>
+                    <td ><a>{{ file['name'] }}</a></td>
+                  </tr>
+                  {%elif  file['type']== rk_type %}
+                  <tr class="rk_unactive" data-id="{{ file['id'] }}">
+                    <td style="width: 5%"><img class="info-item" src="/static/img/{% if file['type']=='direct_search'%}yandex.svg{% elif file['type']=='direct_rsy'%}dir_rsy.svg{%endif%} " style="display: flex;margin: 0 auto;"></td>
+                    <td ><a>{{ file['name'] }}</a></td>
+                  </tr>
+                  {%endif%}
+                  {% endfor%}
+                </tbody>
+              </table>
+              <div name="new_rk" class="input-group input-group-sm mb-3 container" >
+              <div class="input-group-prepend">
+              <span class="input-group-text">В новую кампанию</span>
+              </div>
+              <input name="new_rk" type="text" class="form-control" placeholder="имя рк">
+              </div>
+
+              <div name="new_segment" class="input-group input-group-sm mb-3 container" style="display:none;">
+              <div name="in_segment" class="input-group-prepend">
+              <span class="input-group-text">В новый сегмент</span>
+              </div>
+              <input name="in_segment" type="text" class="form-control" placeholder="имя сегмента">
+
+              <table class="table table-bordered table-sm" style="font-size: 14px;margin-top: 15px;">
+                <tbody name="perenos_segment_veiw" style="background-color: #ffff;">
+
+                </tbody>
+              </table>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <span style="font-size: 12px">Сгенерированы объявления для переносимых фраз удалятся</span>
+              <button style="width: 50%;" type="button" class="btn btn-primary" id="perenos-words">Перенести фразы</button>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- END Modal Пернос -->
+{%  endblock %}
+
+
+{%  block js %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/grupirator.js') }}"></script>
+{%  endblock %}

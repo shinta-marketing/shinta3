@@ -1,0 +1,27 @@
+<tbody style="background-color: #ffff;" name="fraze">
+
+
+  {% for words in dict_poh_words  %}
+    <tr name="gruping_words" data-word="{{words[0]}}" data-chas="{{words[1]}}">
+    <th style="padding: 0px;">
+    <div class="row" style="margin: 0px;">
+      <div class="col-1 plus" style="padding: 13px;">
+        <div class="botton-popup" data_word="{{words[0]}}"><div class="treygolnik-popup"></div></div>
+
+          <div name="dropdown" class="popup-words" data-word="{{words[0]}}">
+
+          </div>
+      </div>
+      <div class="col-8 words" data_word="{{words[0]}}" name="words" style="padding: 10px 0;">
+        {% for word in words[0]  %}
+          <span name="gruping_words" data_word="{{word}}" data_dict="{{words[0]}}" class="words_unactive podcherk_unactive">{{word}} </span>
+        {% endfor %}
+      </div>
+      <div class="col-1 glaz_popup" data_word="{{words[0]}}" name="glaz" list_fraze="{{words[2]}}"> <img data-toggle="modal" data-target="#glaz_app" class="text-item" src="/static/img/eye.svg"> </div>
+      <div class="col-2" name="chas" style="text-align: center;padding: 10px;"> {{words[1]}} </div>
+    </div>
+     </th>
+     </tr>
+
+  {% endfor %}
+</tbody>

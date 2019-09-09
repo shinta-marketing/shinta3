@@ -1,0 +1,21 @@
+<tbody name="active_words" data-id="{{mf['id']}}">
+  {% for words in mf['minus_frase'] %}
+  <tr name="active_words" data-name="{{words}}">
+    <th class="grupirator">
+      <div class="row">
+        <div class="col-2" style="padding: 0;text-align: center;margin-left: 5px;">
+          <img data-word="{{words}}" data-toggle="modal" data-target="#glaz_app" class="glaz glaz_mf" src="/static/img/eye.svg">
+        </div>
+        <div class="col-10 row justify-content-between active_words" data-word="{{words}}" style="padding: 0;">
+          <div class="col-10">
+            {{words}}
+          </div>
+          <div class="col-2 active_del" data-word="{{words}}" style="display:none;font-size:8px">
+            &#10060;
+          </div>
+        </div>
+      </div>
+    </th>
+  </tr>
+  {% endfor%}
+</tbody>

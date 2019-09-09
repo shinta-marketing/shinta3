@@ -1,0 +1,7 @@
+<tbody name="perenos_segment_veiw" style="background-color: #ffff;">
+  {% for segment in s %}
+  <tr name="in_seg" class="seg_unactive" data-id="{{ segment['id'] }}">
+    <td ><a>{{ segment['name'] }}</a></td>
+  </tr>
+  {% endfor%}
+</tbody>

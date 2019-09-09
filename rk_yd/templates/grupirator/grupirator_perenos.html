@@ -1,0 +1,48 @@
+<div name="perenos_table" class="modal-body" data-type="{{rk_type}}" style="font-size: 12px;">
+    <label for="exampleFormControlSelect2">Нажмите на имя папки(появятся вложенные)</label>
+      <div class="col-auto" style="margin-bottom: 10px;">
+        {% for i in data.bread %}
+        {% if i[1] == data.id%}
+        <a class="folder xleb_activ_cp" data-id="{{ i[1] }}" data-name="{{w}}">{{ i[0] }}</a>
+        {%else%}
+        <a class="folder xleb" data-id="{{ i[1] }}">>{{ i[0] }}</a>
+        {%endif%}
+        {% endfor%}
+      </div>
+      <table class="table table-bordered table-sm" style="font-size: 14px;">
+        <tbody name="folder" style="background-color: #ffff;">
+          {% for file in data.file  %}
+          {% if file['type']=='folder'%}
+          <tr class="folder" data-id="{{ file['id'] }}">
+            <td style="width: 5%"><img class="info-item" src="/static/img/{% if file['type']=='direct_search'%}yandex.svg{% elif file['type']=='ads_search'%}gads.svg{% else%}folder.svg{%endif%} " style="display: flex;margin: 0 auto;"></td>
+            <td ><a>{{ file['name'] }}</a></td>
+          </tr>
+          {%elif  file['type']== rk_type %}
+          <tr class="rk_unactive" data-id="{{ file['id'] }}">
+            <td style="width: 5%"><img class="info-item" src="/static/img/{% if file['type']=='direct_search'%}yandex.svg{% elif file['type']=='ads_search'%}gads.svg{% else%}folder.svg{%endif%} " style="display: flex;margin: 0 auto;"></td>
+            <td ><a>{{ file['name'] }}</a></td>
+          </tr>
+          {%endif%}
+          {% endfor%}
+        </tbody>
+      </table>
+      <div name="new_rk" class="input-group input-group-sm mb-3 container" >
+      <div class="input-group-prepend">
+      <span class="input-group-text">В новую кампанию</span>
+      </div>
+      <input name="new_rk" type="text" class="form-control" placeholder="имя рк">
+      </div>
+
+      <div name="new_segment" class="input-group input-group-sm mb-3 container" style="display:none;">
+      <div name="in_segment" class="input-group-prepend">
+      <span class="input-group-text">В новый сегмент</span>
+      </div>
+      <input name="in_segment" type="text" class="form-control" placeholder="имя сегмента">
+
+      <table class="table table-bordered table-sm" style="font-size: 14px;margin-top: 15px;">
+        <tbody name="perenos_segment_veiw" style="background-color: #ffff;">
+
+        </tbody>
+      </table>
+      </div>
+</div>
